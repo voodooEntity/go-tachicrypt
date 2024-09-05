@@ -1,13 +1,27 @@
 package fileutils
 
 import (
+	"fmt"
 	"math/rand"
 	"os"
 	"time"
 )
 
-func WriteToFile(filename string, data []byte) error {
-	return os.WriteFile(filename, data, 0644)
+func WriteToFile(filename string, content []byte) error {
+	// Open the file for writing with 0644 permissions
+	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE, 0644)
+	if err != nil {
+		return fmt.Errorf("error opening file: %w", err)
+	}
+	defer file.Close() // Ensure the file is closed even if an error occurs
+
+	// Write the content to the file
+	_, err = file.Write(content)
+	if err != nil {
+		return fmt.Errorf("error writing to file: %w", err)
+	}
+
+	return nil
 }
 
 func ObfuscateFileTimestamps(dirPath string) error {
