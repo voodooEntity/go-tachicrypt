@@ -14,7 +14,6 @@ func main() {
 	dataPath := flag.String("data", "", "Path to the data file or directory")
 	partCount := flag.Int("parts", -1, "Amount of parts that should be created")
 	outputDir := flag.String("output", "", "Output directory for encrypted data or decrypted data")
-	masterlockPath := flag.String("masterlock", "", "Path to the master lock file")
 	help := flag.Bool("help", false, "Show help message")
 
 	// Parse flags
@@ -48,12 +47,8 @@ func main() {
 	}
 
 	if *unhide {
-		fmt.Println("we should not get here")
-		if *masterlockPath == "" {
-			log.Fatal("The --masterlock option must be specified for unhiding.")
-		}
 		c := core.New()
-		err := c.Unhide(*outputDir, *masterlockPath, *outputDir)
+		err := c.Unhide(*dataPath, *outputDir)
 		if err != nil {
 			log.Fatalf("Error unhiding data: %v", err)
 		}
@@ -71,10 +66,9 @@ func printUsage() {
 	fmt.Println("  --data           Path to the data file or directory")
 	fmt.Println("  --parts          Amount of parts to be created when hiding")
 	fmt.Println("  --output         Output directory for encrypted data or decrypted data")
-	fmt.Println("  --masterlock     Path to the master lock file")
 	fmt.Println("  --help           Show this help message")
 	fmt.Println()
 	fmt.Println("Examples:")
 	fmt.Println("  Encrypt data: tachicrypt --hide --parts 10 --data /path/to/data --output /path/to/output")
-	fmt.Println("  Decrypt data: tachicrypt --unhide --output /path/to/output --masterlock /path/to/masterlock")
+	fmt.Println("  Decrypt data: tachicrypt --unhide --output /path/to/output ")
 }

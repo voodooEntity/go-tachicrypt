@@ -39,9 +39,10 @@ func EncryptWithRandomKey(plaintext string) (string, string, error) {
 // DecryptWithRandomKey decrypts a ciphertext using AES with a randomly generated key.
 func DecryptWithRandomKey(ciphertext string, encodedKey string) (string, error) {
 	// Decode the key
+	fmt.Println("key: ", encodedKey)
 	keyBytes, err := base64.StdEncoding.DecodeString(encodedKey)
 	if err != nil {
-		return "", errors.New("error decoding key")
+		return "", fmt.Errorf("error decoding key: %+w ", err)
 	}
 
 	// Decrypt using the decoded key
@@ -54,10 +55,6 @@ func DecryptWithPassword(ciphertext string, password string) (string, error) {
 	if err != nil {
 		return "", errors.New("error decoding ciphertext")
 	}
-
-	// Split the ciphertext into IV and actual ciphertext
-	iv := ciphertextBytes[:aes.BlockSize]
-	ciphertextBytes = ciphertextBytes[aes.BlockSize:]
 
 	// Derive a 32-byte key from the password
 	key := deriveKey(password)
@@ -72,8 +69,14 @@ func DecryptWithPassword(ciphertext string, password string) (string, error) {
 		return "", fmt.Errorf("error creating GCM cipher: %w", err)
 	}
 
+	// Split the ciphertext into IV and actual ciphertext
+	iv := ciphertextBytes[:gcm.NonceSize()]
+	fmt.Println(iv)
+	ciphertextBytes = ciphertextBytes[gcm.NonceSize():]
+
 	// Decrypt the ciphertext using GCM
-	plaintext, err := gcm.Open(nil, iv, ciphertextBytes, nil)
+	dst := []byte{}
+	plaintext, err := gcm.Open(dst, iv, ciphertextBytes, nil)
 	if err != nil {
 		return "", errors.New("error decrypting ciphertext")
 	}
