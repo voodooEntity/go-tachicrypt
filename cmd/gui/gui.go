@@ -416,16 +416,30 @@ func (tc *TachiCrypt) ShowDecRunDecryption() {
 	}
 }
 
-func (tc *TachiCrypt) ShowDecFinal() {
-	text := widget.NewLabelWithStyle("Decryption done. Please check the provided output directory for the resulting files.", fyne.TextAlignLeading, fyne.TextStyle{Italic: true})
-	text.Wrapping = fyne.TextWrapWord
-	textContainer := container.New(layout.NewAdaptiveGridLayout(1), text)
+func (tc *TachiCrypt) ShowDecFinal1() {
+	text := GetTextElement("Decryption done. Please check the provided output directory for the resulting files.", color.White, fyne.TextAlignLeading, fyne.TextStyle{Italic: true})
+	textContainer := container.New(layout.NewHBoxLayout(), text)
 
 	exit := widget.NewButton("Exit", func() {
 		tc.App.Quit()
 	})
 
-	cont := container.New(layout.NewVBoxLayout(), textContainer, exit)
+	cont := container.NewWithoutLayout(textContainer, exit)
+	tc.UpdateWindow("main", " ~ TachiCrypt : Encrypt : Final ~ ", cont, 300, 300)
+}
+
+func (tc *TachiCrypt) ShowDecFinal() {
+
+	text := canvas.NewText("Decryption done. Please check the provided output directory for the resulting files.", color.White)
+	text.Alignment = fyne.TextAlignTrailing
+	text.TextStyle = fyne.TextStyle{Italic: true}
+	textContainer := container.New(layout.NewHBoxLayout(), text)
+
+	encrypt := widget.NewButton("Exit", func() {
+		tc.App.Quit()
+	})
+
+	cont := container.New(layout.NewVBoxLayout(), textContainer, encrypt)
 	tc.UpdateWindow("main", " ~ TachiCrypt : Encrypt : Final ~ ", cont, 300, 300)
 }
 
