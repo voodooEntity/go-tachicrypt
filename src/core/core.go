@@ -12,7 +12,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 )
 
@@ -30,7 +29,7 @@ func New() *Core {
 	}
 }
 
-func (c *Core) Hide(dataPath string, partCount int, outputDir string) error {
+func (c *Core) Hide(dataPath string, partCount int, outputDir string, prefilledPassword string) error {
 	c.PartCount = partCount
 
 	zipr := zipper.New()
@@ -38,13 +37,13 @@ func (c *Core) Hide(dataPath string, partCount int, outputDir string) error {
 	if err != nil {
 		return fmt.Errorf("error zipping and encoding: %w", err)
 	}
-	fileutils.WriteToFile("debug/full-before", []byte(base64Zip))
 
 	parts, padding := splitter.SplitStringWithPadding(base64Zip, c.PartCount)
 
 	var partInfos []masterlock.PartInfo
+	fmt.Println("Running encryption ")
 	for i, part := range parts {
-		fileutils.WriteToFile("debug/part-before-"+strconv.Itoa(i), []byte(part))
+		fmt.Print("* ")
 		encryptedPart, key, err := encryptor.EncryptWithRandomKey(part)
 		if err != nil {
 			return fmt.Errorf("error encrypting part: %w", err)
@@ -73,9 +72,14 @@ func (c *Core) Hide(dataPath string, partCount int, outputDir string) error {
 		return fmt.Errorf("error creating master lock file: %w", err)
 	}
 
-	password, err := utils.PromptForPassword("Please enter a password to encrypt the masterlock: ")
-	if err != nil {
-		return fmt.Errorf("error prompting for password: %w", err)
+	password := ""
+	if "" == prefilledPassword {
+		password, err = utils.PromptForPassword("Please enter a password to encrypt the masterlock: ")
+		if err != nil {
+			return fmt.Errorf("error prompting for password: %w", err)
+		}
+	} else {
+		password = prefilledPassword
 	}
 
 	encryptedMasterLock, err := encryptor.EncryptWithPassword(string(masterLockData), password)
@@ -83,7 +87,6 @@ func (c *Core) Hide(dataPath string, partCount int, outputDir string) error {
 		return fmt.Errorf("error encrypting master lock file: %w", err)
 	}
 	masterLockPath := filepath.Join(outputDir, "masterlock")
-	fmt.Println(masterLockData)
 
 	err = fileutils.WriteToFile(masterLockPath, []byte(encryptedMasterLock))
 	if err != nil {
@@ -94,15 +97,21 @@ func (c *Core) Hide(dataPath string, partCount int, outputDir string) error {
 	if err != nil {
 		return fmt.Errorf("error obfuscating file timestamps: %w", err)
 	}
-
+	fmt.Println("Encryption finished.")
 	return nil
 }
 
 // Unhide decrypts the data from the given parts and master lock file, storing the result in the output path.
-func (c *Core) Unhide(partsDir, outputPath string) error {
+func (c *Core) Unhide(partsDir, outputPath string, prefilledPassword string) error {
 	// Step 1: Decrypt Master Lock File
 
-	password, err := utils.PromptForPassword("Enter the password to decrypt the masterlock")
+	password := ""
+	if "" == prefilledPassword {
+		password, _ = utils.PromptForPassword("Enter the password to decrypt the masterlock: ")
+	} else {
+		password = prefilledPassword
+	}
+
 	encryptedMasterLock, err := ioutil.ReadFile(filepath.Join(partsDir, "masterlock"))
 	if err != nil {
 		return fmt.Errorf("error reading encrypted master lock file: %w", err)
@@ -121,7 +130,9 @@ func (c *Core) Unhide(partsDir, outputPath string) error {
 
 	// Step 2: Decrypt Each Part
 	var base64Parts []string
+	fmt.Print("Running decryption ")
 	for _, partInfo := range mlock.Parts {
+		fmt.Print("* ")
 		partPath := filepath.Join(partsDir, partInfo.Filename)
 		encryptedPart, err := os.ReadFile(partPath)
 		if err != nil {
@@ -132,7 +143,6 @@ func (c *Core) Unhide(partsDir, outputPath string) error {
 		if err != nil {
 			return fmt.Errorf("error decrypting part: %w", err)
 		}
-		fileutils.WriteToFile("debug/part-after-"+strconv.Itoa(partInfo.Index), []byte(decryptedPart))
 
 		base64Parts = append(base64Parts, string(decryptedPart))
 	}
@@ -141,12 +151,12 @@ func (c *Core) Unhide(partsDir, outputPath string) error {
 	paddedData := strings.Join(base64Parts, "")
 	unpaddedData := paddedData[:len(paddedData)-mlock.Padding]
 
-	fileutils.WriteToFile("debug/full-after", []byte(unpaddedData))
 	zipper := zipper.New()
 	err = zipper.ExtractBase64ZipToDir(unpaddedData, outputPath)
 	if err != nil {
 		return fmt.Errorf("error unzipping data: %w", err)
 	}
+	fmt.Println("Decryption finished.")
 
 	return nil
 }

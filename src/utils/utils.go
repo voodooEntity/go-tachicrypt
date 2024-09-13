@@ -18,7 +18,7 @@ func GenerateRandomFilename() (string, error) {
 
 // PromptForPassword prompts the user for a password securely.
 func PromptForPassword(message string) (string, error) {
-	fmt.Print(message)
+	fmt.Println("\n" + message)
 	password, err := readPassword()
 	if err != nil {
 		return "", err

@@ -39,7 +39,7 @@ func main() {
 
 	if *hide {
 		c := core.New()
-		err := c.Hide(*dataPath, *partCount, *outputDir)
+		err := c.Hide(*dataPath, *partCount, *outputDir, "")
 		if err != nil {
 			log.Fatalf("Error hiding data: %v", err)
 		}
@@ -48,7 +48,7 @@ func main() {
 
 	if *unhide {
 		c := core.New()
-		err := c.Unhide(*dataPath, *outputDir)
+		err := c.Unhide(*dataPath, *outputDir, "")
 		if err != nil {
 			log.Fatalf("Error unhiding data: %v", err)
 		}

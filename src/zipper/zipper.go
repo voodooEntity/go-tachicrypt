@@ -95,10 +95,10 @@ func (z *Zipper) ExtractBase64ZipToDir(zipBase64 string, destDir string) error {
 			if err != nil {
 				return err
 			}
-			defer rc.Close()
 
 			outFile := filepath.Join(destDir, f.Name)
-			err = os.MkdirAll(filepath.Dir(outFile), f.FileInfo().Mode())
+			//err = os.MkdirAll(filepath.Dir(outFile), f.FileInfo().Mode())
+			err = os.MkdirAll(filepath.Dir(outFile), 0755)
 			if err != nil {
 				return err
 			}
@@ -107,12 +107,13 @@ func (z *Zipper) ExtractBase64ZipToDir(zipBase64 string, destDir string) error {
 			if err != nil {
 				return err
 			}
-			defer fw.Close()
 
 			_, err = io.Copy(fw, rc)
 			if err != nil {
 				return err
 			}
+			fw.Close()
+			rc.Close()
 		}
 	}
 

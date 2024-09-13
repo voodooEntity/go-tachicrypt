@@ -39,7 +39,6 @@ func EncryptWithRandomKey(plaintext string) (string, string, error) {
 // DecryptWithRandomKey decrypts a ciphertext using AES with a randomly generated key.
 func DecryptWithRandomKey(ciphertext string, encodedKey string) (string, error) {
 	// Decode the key
-	fmt.Println("key: ", encodedKey)
 	keyBytes, err := base64.StdEncoding.DecodeString(encodedKey)
 	if err != nil {
 		return "", fmt.Errorf("error decoding key: %+w ", err)
@@ -71,7 +70,6 @@ func DecryptWithPassword(ciphertext string, password string) (string, error) {
 
 	// Split the ciphertext into IV and actual ciphertext
 	iv := ciphertextBytes[:gcm.NonceSize()]
-	fmt.Println(iv)
 	ciphertextBytes = ciphertextBytes[gcm.NonceSize():]
 
 	// Decrypt the ciphertext using GCM
