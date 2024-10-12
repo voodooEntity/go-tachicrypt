@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-  <a href="http://www.amitmerchant.com/electron-markdownify"><img src="tachicrypt_logo.jpg" alt="Markdownify" width="300"></a>
+  <a href="https://github.com/voodooEntity/go-tachicrypt/"><img src="tachicrypt_logo.jpg" alt="TachiCrypt" width="300"></a>
   <br>
   TachiCrypt
   <br>
