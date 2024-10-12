@@ -4,3 +4,4 @@ cmd/gui/tachicrypt
 cmd/client/tachicrypt
 cmd/client/tachicryptgui
 cmd/gui/tachicrypgui
+./idea
