@@ -24,6 +24,7 @@
 * Simple cli interface
 * Supports encrypting either files or directories(recursively)
 * Vanilla golang code with no dependency hell
+* Uses AES GCM to encrypt and does not rely on any self implemented half baked encryption
 * Encrypts into multiple parts to enable storing the encrypted data split on multiple different places or transfer the encrypted data over multiple different channels
 * The encrypted parts are named using random strings to complicate cracking the data
 * Each encrypted part is encrypted using another passkey
