@@ -44,6 +44,7 @@ func main() {
 			log.Fatalf("Error hiding data: %v", err)
 		}
 		log.Println("Data encrypted and saved successfully.")
+		return
 	}
 
 	if *unhide {
@@ -53,7 +54,9 @@ func main() {
 			log.Fatalf("Error unhiding data: %v", err)
 		}
 		log.Println("Data decrypted and saved successfully.")
+		return
 	}
+	printUsage()
 }
 
 // printUsage prints the usage information for the command-line tool.
@@ -70,5 +73,5 @@ func printUsage() {
 	fmt.Println()
 	fmt.Println("Examples:")
 	fmt.Println("  Encrypt data: tachicrypt --hide --parts 10 --data /path/to/data --output /path/to/output")
-	fmt.Println("  Decrypt data: tachicrypt --unhide --output /path/to/output ")
+	fmt.Println("  Decrypt data: tachicrypt --data /path/to/encrypted/data --unhide --output /path/to/output ")
 }
