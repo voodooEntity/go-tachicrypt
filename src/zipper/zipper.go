@@ -97,8 +97,8 @@ func (z *Zipper) ExtractBase64ZipToDir(zipBase64 string, destDir string) error {
 			}
 
 			outFile := filepath.Join(destDir, f.Name)
-			//err = os.MkdirAll(filepath.Dir(outFile), f.FileInfo().Mode())
-			err = os.MkdirAll(filepath.Dir(outFile), 0755)
+
+			err = os.MkdirAll(filepath.Dir(outFile), 0755) // ### note to myself - 755 fixes a current issue but is not a good chmod
 			if err != nil {
 				return err
 			}
