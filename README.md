@@ -84,7 +84,7 @@ to print information about the params and example commands for encrypting and de
 ## Changelog
 [Check the Changelog](./CHANGELOG.md)
 
-Latest Release [Alpha 0.0.1](https://github.com/voodooEntity/go-tachicrypt/releases/tag/0.0.1)
+Latest Release [Alpha 0.1.0](https://github.com/voodooEntity/go-tachicrypt/releases/tag/0.1.0)
 
 ## Roadmap
 At this point i want to repeat that this is an experimental fun project. I got no timeline or plans on when i will enhance this software. I probably gonne decide this based on if there is anyone interested and actually will be using it. So if you want me to further improve it - leave a star to let me know .)
