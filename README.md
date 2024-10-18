@@ -15,6 +15,7 @@
   <a href="#how-to-use">How To Use</a> •
   <a href="#roadmap">Roadmap</a> •
   <a href="#license">License</a>
+  <a href="#changelog">Changelog</a>
 </p>
 
 <i><b>Important</b> right now this is an experimental project and the safety and stability isn't guaranteed!</i>
@@ -80,12 +81,17 @@ tachicrypt --help
 ```
 to print information about the params and example commands for encrypting and decrypting.
 
+## Changelog
+[Check the Changelog](./CHANGELOG.md)
+
+Latest Release [Alpha 0.0.1](https://github.com/voodooEntity/go-tachicrypt/releases/tag/0.0.1)
+
 ## Roadmap
 At this point i want to repeat that this is an experimental fun project. I got no timeline or plans on when i will enhance this software. I probably gonne decide this based on if there is anyone interested and actually will be using it. So if you want me to further improve it - leave a star to let me know .)
 
-- [ ] Add Changelog
+- [x] Add Changelog
+- [x] Adjust password input to not show the typed text
 - [ ] Code cleanup
-- [ ] Adjust password input to not show the typed text
 - [ ] Implement better error handling
 - [ ] Enhance the padding at the end of uneven last parts to use random data
 - [ ] Enhance the strength of generated passkeys for encryption
