@@ -74,10 +74,7 @@ func (c *Core) Hide(dataPath string, partCount int, outputDir string, prefilledP
 
 	password := ""
 	if "" == prefilledPassword {
-		password, err = utils.PromptForPassword("Please enter a password to encrypt the masterlock: ")
-		if err != nil {
-			return fmt.Errorf("error prompting for password: %w", err)
-		}
+		password = utils.PromptForPassword("Please enter a password to encrypt the masterlock: ")
 	} else {
 		password = prefilledPassword
 	}
@@ -107,7 +104,7 @@ func (c *Core) Unhide(partsDir, outputPath string, prefilledPassword string) err
 
 	password := ""
 	if "" == prefilledPassword {
-		password, _ = utils.PromptForPassword("Enter the password to decrypt the masterlock: ")
+		password = utils.PromptForPassword("Enter the password to decrypt the masterlock: ")
 	} else {
 		password = prefilledPassword
 	}

@@ -1,10 +1,10 @@
 package utils
 
 import (
-	"bufio"
 	"crypto/rand"
 	"fmt"
-	"os"
+	"golang.org/x/term"
+	"syscall"
 )
 
 func GenerateRandomFilename() (string, error) {
@@ -15,21 +15,15 @@ func GenerateRandomFilename() (string, error) {
 	return fmt.Sprintf("%x", filename), nil
 }
 
-func PromptForPassword(message string) (string, error) {
-	fmt.Println("\n" + message)
-	password, err := readPassword()
+func PromptForPassword(prompt string) string {
+	fmt.Println("\n" + prompt)
+	password, err := term.ReadPassword(int(syscall.Stdin))
 	if err != nil {
-		return "", err
+		fmt.Println("\nError reading password:", err)
+		return PromptForPassword(prompt)
 	}
-	return password, nil
-}
 
-func readPassword() (string, error) {
-	reader := bufio.NewReader(os.Stdin)
-	pwd, err := reader.ReadString('\n')
-	if err != nil {
-		fmt.Println("Error reading input:", err)
-		return "", err
-	}
-	return pwd, nil
+	fmt.Println("\nPassword entered successfully.")
+	pwd := string(password) // Use the password as needed
+	return pwd
 }

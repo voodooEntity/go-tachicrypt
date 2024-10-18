@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"github.com/voodooEntity/go-tachicrypt/src/core"
-	"log"
 )
 
 func main() {
@@ -26,24 +25,28 @@ func main() {
 	}
 
 	if *hide && -1 == *partCount {
-		log.Fatal("Missing mandatory --parts parameter")
+		fmt.Println("Missing mandatory --parts parameter \n")
+		return
 	}
 
 	if *hide && *unhide {
-		log.Fatal("Cannot use both --hide and --unhide options at the same time.")
+		fmt.Println("Cannot use both --hide and --unhide options at the same time. \n")
+		return
 	}
 
 	if (*hide || *unhide) && (*dataPath == "" || *outputDir == "") {
-		log.Fatal("Both --data and --output must be specified.")
+		fmt.Println("Both --data and --output must be specified. \n")
+		return
 	}
 
 	if *hide {
 		c := core.New()
 		err := c.Hide(*dataPath, *partCount, *outputDir, "")
 		if err != nil {
-			log.Fatalf("Error hiding data: %v", err)
+			fmt.Printf("Error hiding data: %v \n", err)
+			return
 		}
-		log.Println("Data encrypted and saved successfully.")
+		fmt.Printf("Data encrypted and saved successfully. \n")
 		return
 	}
 
@@ -51,9 +54,10 @@ func main() {
 		c := core.New()
 		err := c.Unhide(*dataPath, *outputDir, "")
 		if err != nil {
-			log.Fatalf("Error unhiding data: %v", err)
+			fmt.Printf("Error unhiding data: %v \n", err)
+			return
 		}
-		log.Println("Data decrypted and saved successfully.")
+		fmt.Println("Data decrypted and saved successfully.\n")
 		return
 	}
 	printUsage()
