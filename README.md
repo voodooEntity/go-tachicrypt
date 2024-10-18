@@ -14,7 +14,7 @@
   <a href="#how-to-build">How To Build</a> •
   <a href="#how-to-use">How To Use</a> •
   <a href="#roadmap">Roadmap</a> •
-  <a href="#license">License</a>
+  <a href="#license">License</a> •
   <a href="#changelog">Changelog</a>
 </p>
 
