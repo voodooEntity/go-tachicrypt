@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-  <a href="https://github.com/voodooEntity/go-tachicrypt/"><img src="tachicrypt_logo.jpg" alt="TachiCrypt" width="300"></a>
+  <a href="https://github.com/voodooEntity/go-tachicrypt/"><img src="DOCS/tachicrypt_logo.jpg" alt="TachiCrypt" width="300"></a>
   <br>
   TachiCrypt
   <br>
@@ -80,6 +80,9 @@ You also can always use
 tachicrypt --help
 ```
 to print information about the params and example commands for encrypting and decrypting.
+
+### Example output for encrypting / decrypting
+<img src="DOCS/example.png" alt="TachiCrypt" width="840">
 
 ## Changelog
 ***Notice: While in alpha, minor version updates may be breaking. While i will try to reduce the amount of breaking changes, it still may happen. When breaking changes are to be expected it will be informed about in the breaking versions changelog.***
