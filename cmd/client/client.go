@@ -4,7 +4,11 @@ import (
 	"flag"
 	"fmt"
 	"github.com/voodooEntity/go-tachicrypt/src/core"
+	"github.com/voodooEntity/go-tachicrypt/src/prettywriter"
+	"github.com/voodooEntity/go-tachicrypt/src/utils"
 )
+
+var version = "Alpha 0.2.0"
 
 func main() {
 	// Define flags
@@ -25,28 +29,29 @@ func main() {
 	}
 
 	if *hide && -1 == *partCount {
-		fmt.Println("Missing mandatory --parts parameter \n")
+		utils.ExitError("Missing mandatory --parts parameter \n")
 		return
 	}
 
 	if *hide && *unhide {
-		fmt.Println("Cannot use both --hide and --unhide options at the same time. \n")
+		utils.ExitError("Cannot use both --hide and --unhide options at the same time. \n")
 		return
 	}
 
 	if (*hide || *unhide) && (*dataPath == "" || *outputDir == "") {
-		fmt.Println("Both --data and --output must be specified. \n")
+		utils.ExitError("Both --data and --output must be specified. \n")
 		return
 	}
+
+	utils.PrintApplicationHeader(version)
 
 	if *hide {
 		c := core.New()
 		err := c.Hide(*dataPath, *partCount, *outputDir, "")
 		if err != nil {
-			fmt.Printf("Error hiding data: %v \n", err)
+			utils.ExitError(fmt.Sprintf("Error hiding data: %v \n", err))
 			return
 		}
-		fmt.Printf("Data encrypted and saved successfully. \n")
 		return
 	}
 
@@ -54,10 +59,9 @@ func main() {
 		c := core.New()
 		err := c.Unhide(*dataPath, *outputDir, "")
 		if err != nil {
-			fmt.Printf("Error unhiding data: %v \n", err)
+			utils.ExitError(fmt.Sprintf("Error unhiding data: %v \n", err))
 			return
 		}
-		fmt.Println("Data decrypted and saved successfully.\n")
 		return
 	}
 	printUsage()
@@ -65,17 +69,18 @@ func main() {
 
 // printUsage prints the usage information for the command-line tool.
 func printUsage() {
-	fmt.Println("Usage: tachicrypt [options]")
-	fmt.Println()
-	fmt.Println("Options:")
-	fmt.Println("  --hide           Hide (encrypt) data")
-	fmt.Println("  --unhide         Unhide (decrypt) data")
-	fmt.Println("  --data           Path to the data file or directory")
-	fmt.Println("  --parts          Amount of parts to be created when hiding")
-	fmt.Println("  --output         Output directory for encrypted data or decrypted data")
-	fmt.Println("  --help           Show this help message")
-	fmt.Println()
-	fmt.Println("Examples:")
-	fmt.Println("  Encrypt data: tachicrypt --hide --parts 10 --data /path/to/data --output /path/to/output")
-	fmt.Println("  Decrypt data: tachicrypt --data /path/to/encrypted/data --unhide --output /path/to/output ")
+	prettywriter.WriteInBox(40, "Usage: tachicrypt [options]", prettywriter.Green, prettywriter.BlackBG, prettywriter.DoubleLine)
+	fmt.Println("")
+	prettywriter.Writeln("Options:", prettywriter.Green, prettywriter.BlackBG)
+	prettywriter.Writeln("  --hide             Hide (encrypt) data", prettywriter.Green, prettywriter.BlackBG)
+	prettywriter.Writeln("  --unhide           Unhide (decrypt) data", prettywriter.Green, prettywriter.BlackBG)
+	prettywriter.Writeln("  --data     [arg]   Path to the data file or directory", prettywriter.Green, prettywriter.BlackBG)
+	prettywriter.Writeln("  --parts    [arg]   Amount of parts to be created when hiding", prettywriter.Green, prettywriter.BlackBG)
+	prettywriter.Writeln("  --output   [arg]   Output directory for encrypted data or decrypted data", prettywriter.Green, prettywriter.BlackBG)
+	prettywriter.Writeln("  --help             Show this help message", prettywriter.Green, prettywriter.BlackBG)
+	fmt.Println("")
+	prettywriter.Writeln("Examples:", prettywriter.Green, prettywriter.BlackBG)
+	prettywriter.Writeln("  Encrypt data: tachicrypt --hide --parts 10 --data /path/to/data --output /path/to/output", prettywriter.Green, prettywriter.BlackBG)
+	prettywriter.Writeln("  Decrypt data: tachicrypt --data /path/to/encrypted/data --unhide --output /path/to/output ", prettywriter.Green, prettywriter.BlackBG)
+	fmt.Println("")
 }

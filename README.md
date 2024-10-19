@@ -82,17 +82,20 @@ tachicrypt --help
 to print information about the params and example commands for encrypting and decrypting.
 
 ## Changelog
+***Notice: While in alpha, minor version updates may be breaking. While i will try to reduce the amount of breaking changes, it still may happen. When breaking changes are to be expected it will be informed about in the breaking versions changelog.***
+
 [Check the Changelog](./CHANGELOG.md)
 
-Latest Release [Alpha 0.1.0](https://github.com/voodooEntity/go-tachicrypt/releases/tag/0.1.0)
+Latest Release [Alpha 0.2.0](https://github.com/voodooEntity/go-tachicrypt/releases/tag/0.2.0)
 
 ## Roadmap
 At this point i want to repeat that this is an experimental fun project. I got no timeline or plans on when i will enhance this software. I probably gonne decide this based on if there is anyone interested and actually will be using it. So if you want me to further improve it - leave a star to let me know .)
 
 - [x] Add Changelog
 - [x] Adjust password input to not show the typed text
+- [x] Cli output overhaul
+- [x] Implement better error handling
 - [ ] Code cleanup
-- [ ] Implement better error handling
 - [ ] Enhance the padding at the end of uneven last parts to use random data
 - [ ] Enhance the strength of generated passkeys for encryption
 - [ ] Implement a check to warn the user if the gathered random data is weak (if possible :>)

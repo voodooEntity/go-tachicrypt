@@ -23,7 +23,7 @@ func (z *Zipper) ZipToString(path string) (string, error) {
 	// Zip the file
 	err := z.zipFile(path, "", w)
 	if err != nil {
-		w.Close() // Ensure to close the writer in case of error
+		w.Close()
 		return "", err
 	}
 
