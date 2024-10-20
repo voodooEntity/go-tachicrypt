@@ -53,7 +53,6 @@ tachicrypt -unhide -data /path/to/your/encrypted/files/and/masterlock -output /p
 * -unhide: Indicates that the data should be decrypted.
 * -data: Specifies the path to the directory containing the encrypted parts and masterlock file.
 * -output: Sets the directory where the decrypted data will be stored.
-* You also can always use
 
 ### Help
 You can always use
