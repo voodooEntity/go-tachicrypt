@@ -14,7 +14,6 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
 )
 
 type Core struct {
@@ -34,25 +33,25 @@ func New() *Core {
 func (c *Core) Hide(dataPath string, partCount int, outputDir string, prefilledPassword string) error {
 	prettywriter.WriteInBox(40, "Configuration", prettywriter.Green, prettywriter.BlackBG, prettywriter.DoubleLine)
 	prettywriter.Writeln("[==] Chosen mode: hide (encrypting)", prettywriter.Green, prettywriter.BlackBG)
-	prettywriter.Writeln("[==] Input directory: "+dataPath, prettywriter.Green, prettywriter.BlackBG)
-	prettywriter.Writeln("[==] Output directory: "+outputDir, prettywriter.Green, prettywriter.BlackBG)
+	prettywriter.Writeln("[==] Input path: "+dataPath, prettywriter.Green, prettywriter.BlackBG)
+	prettywriter.Writeln("[==] Output path: "+outputDir, prettywriter.Green, prettywriter.BlackBG)
 	prettywriter.Writeln("[==] Amount of parts: "+strconv.Itoa(partCount), prettywriter.Green, prettywriter.BlackBG)
 	fmt.Println("")
 
 	prettywriter.WriteInBox(40, "Starting Encryption Process", prettywriter.Black, prettywriter.Green, prettywriter.DoubleLine)
-	prettywriter.Writeln("[>>] Zipping input data to base64 string", prettywriter.Green, prettywriter.BlackBG)
-	// Step 1: Create the zip base64 string data path
+	prettywriter.Writeln("[>>] Zipping input data", prettywriter.Green, prettywriter.BlackBG)
+	// Step 1: Create the zip data
 	c.PartCount = partCount
 
 	zipr := zipper.New()
-	base64Zip, err := zipr.ZipToString(dataPath)
+	zipData, err := zipr.Zip(dataPath)
 	if err != nil {
 		return fmt.Errorf("error zipping and encoding: %w", err)
 	}
-	prettywriter.Writeln("[>>] Splitting base64 zip into padded parts", prettywriter.Green, prettywriter.BlackBG)
+	prettywriter.Writeln("[>>] Splitting zip into padded parts", prettywriter.Green, prettywriter.BlackBG)
 
-	// Step 2: Split the base64 zip string into parts with padding
-	parts, padding := splitter.SplitStringWithPadding(base64Zip, c.PartCount)
+	// Step 2: Split the zip slice into parts with padding
+	parts, padding := splitter.SplitBytesWithPadding(zipData, c.PartCount)
 
 	// Step 3: Run encryption on all the parts, store them encrypted and add the info to masterlock
 	var partInfos []masterlock.PartInfo
@@ -70,7 +69,7 @@ func (c *Core) Hide(dataPath string, partCount int, outputDir string, prefilledP
 		}
 
 		partPath := filepath.Join(outputDir, filename)
-		err = fileutils.WriteToFile(partPath, []byte(encryptedPart))
+		err = fileutils.WriteToFile(partPath, encryptedPart)
 		if err != nil {
 			return fmt.Errorf("error writing encrypted part to file: %w", err)
 		}
@@ -99,13 +98,13 @@ func (c *Core) Hide(dataPath string, partCount int, outputDir string, prefilledP
 	fmt.Println("")
 	prettywriter.WriteInBox(40, "Handle masterlock file", prettywriter.Black, prettywriter.Green, prettywriter.DoubleLine)
 	prettywriter.Writeln("[>>] Encrypting masterlock", prettywriter.BlackBG, prettywriter.Green)
-	encryptedMasterLock, err := encryptor.EncryptWithPassword(string(masterLockData), password)
+	encryptedMasterLock, err := encryptor.EncryptWithPassword(masterLockData, password)
 	if err != nil {
 		return fmt.Errorf("error encrypting master lock file: %w", err)
 	}
 	masterLockPath := filepath.Join(outputDir, "masterlock")
 	prettywriter.Writeln("[>>] Writing masterlock", prettywriter.BlackBG, prettywriter.Green)
-	err = fileutils.WriteToFile(masterLockPath, []byte(encryptedMasterLock))
+	err = fileutils.WriteToFile(masterLockPath, encryptedMasterLock)
 	if err != nil {
 		return fmt.Errorf("error writing master lock file: %w", err)
 	}
@@ -127,8 +126,8 @@ func (c *Core) Hide(dataPath string, partCount int, outputDir string, prefilledP
 func (c *Core) Unhide(partsDir, outputPath string, prefilledPassword string) error {
 	prettywriter.WriteInBox(40, "Configuration", prettywriter.Green, prettywriter.BlackBG, prettywriter.DoubleLine)
 	prettywriter.Writeln("[==] Chosen mode: unhide (decrypting)", prettywriter.Green, prettywriter.BlackBG)
-	prettywriter.Writeln("[==] Input directory: "+partsDir, prettywriter.Green, prettywriter.BlackBG)
-	prettywriter.Writeln("[==] Output directory: "+outputPath, prettywriter.Green, prettywriter.BlackBG)
+	prettywriter.Writeln("[==] Input path: "+partsDir, prettywriter.Green, prettywriter.BlackBG)
+	prettywriter.Writeln("[==] Output path: "+outputPath, prettywriter.Green, prettywriter.BlackBG)
 	fmt.Println("")
 
 	prettywriter.WriteInBox(40, "Starting Decryption Process", prettywriter.Black, prettywriter.Green, prettywriter.DoubleLine)
@@ -151,21 +150,21 @@ func (c *Core) Unhide(partsDir, outputPath string, prefilledPassword string) err
 	}
 
 	prettywriter.Writeln("[>>] Decrypting masterlock", prettywriter.BlackBG, prettywriter.Green)
-	decryptedMasterLock, err := encryptor.DecryptWithPassword(string(encryptedMasterLock), password)
+	decryptedMasterLock, err := encryptor.DecryptWithPassword(encryptedMasterLock, password)
 	if err != nil {
 		return fmt.Errorf("error decrypting master lock file: %w", err)
 	}
 
 	prettywriter.Writeln("[>>] Unpacking masterlock", prettywriter.BlackBG, prettywriter.Green)
 	var mlock masterlock.MasterLock
-	err = json.Unmarshal([]byte(decryptedMasterLock), &mlock)
+	err = json.Unmarshal(decryptedMasterLock, &mlock)
 	if err != nil {
 		return fmt.Errorf("error unmarshaling master lock file: %w", err)
 	}
 	prettywriter.Writeln("[**] Masterlock handled successful", prettywriter.BlackBG, prettywriter.Green)
 
 	// Step 2: Decrypt Each Part
-	var base64Parts []string
+	var allParts [][]byte
 	fmt.Println("")
 	prettywriter.WriteInBox(40, "Handling encrypted parts", prettywriter.Black, prettywriter.Green, prettywriter.DoubleLine)
 	for i, partInfo := range mlock.Parts {
@@ -177,25 +176,26 @@ func (c *Core) Unhide(partsDir, outputPath string, prefilledPassword string) err
 			return fmt.Errorf("error reading encrypted part file: %w", err)
 		}
 
-		decryptedPart, err := encryptor.DecryptWithRandomKey(string(encryptedPart), string(partInfo.Key))
+		decryptedPart, err := encryptor.DecryptWithRandomKey(encryptedPart, partInfo.Key)
 		if err != nil {
 			return fmt.Errorf("error decrypting part: %w", err)
 		}
 
-		base64Parts = append(base64Parts, string(decryptedPart))
+		allParts = append(allParts, decryptedPart)
 	}
 	fmt.Println("")
 	prettywriter.Writeln("[**] Parts decrypted successful ", prettywriter.Green, prettywriter.BlackBG)
 	fmt.Println("")
 
+	// Step 3: Reconstruct zip Data
 	prettywriter.WriteInBox(40, "Handling zip", prettywriter.Black, prettywriter.Green, prettywriter.DoubleLine)
-	// Step 3: Reconstruct Base64 Data
-	paddedData := strings.Join(base64Parts, "")
+	paddedData := utils.ConcatByteSlices(allParts)
+	//paddedData := strings.Join(allParts, "")
 	unpaddedData := paddedData[:len(paddedData)-mlock.Padding]
-	prettywriter.Writeln("[**] Reconstructed base64 string without padding ", prettywriter.Green, prettywriter.BlackBG)
+	prettywriter.Writeln("[**] Reconstructed zip data without padding ", prettywriter.Green, prettywriter.BlackBG)
 	prettywriter.Writeln("[>>] Unpacking zip data ", prettywriter.Green, prettywriter.BlackBG)
 	zipper := zipper.New()
-	err = zipper.ExtractBase64ZipToDir(unpaddedData, outputPath)
+	err = zipper.Extract(unpaddedData, outputPath)
 	if err != nil {
 		return fmt.Errorf("error unzipping data: %w", err)
 	}

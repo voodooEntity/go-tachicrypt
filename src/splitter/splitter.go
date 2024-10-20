@@ -1,14 +1,10 @@
 package splitter
 
-import (
-	"strings"
-)
+func SplitBytesWithPadding(data []byte, partCount int) ([][]byte, int) {
+	partLength := len(data) / partCount
+	remainder := len(data) % partCount
 
-func SplitStringWithPadding(str string, partCount int) ([]string, int) {
-	partLength := len(str) / partCount
-	remainder := len(str) % partCount
-
-	parts := make([]string, partCount)
+	parts := make([][]byte, partCount)
 	padding := remainder
 
 	for i := 0; i < partCount; i++ {
@@ -17,9 +13,13 @@ func SplitStringWithPadding(str string, partCount int) ([]string, int) {
 		if i == partCount-1 {
 			end += remainder
 		}
-		part := str[start:end]
+		part := data[start:end]
 		if i == partCount-1 && remainder > 0 {
-			part += strings.Repeat(" ", padding)
+			paddingBytes := make([]byte, padding)
+			for j := range paddingBytes {
+				paddingBytes[j] = ' '
+			}
+			part = append(part, paddingBytes...)
 		}
 		parts[i] = part
 	}

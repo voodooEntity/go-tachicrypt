@@ -63,3 +63,17 @@ func ExitError(message string) {
 	fmt.Println("")
 	os.Exit(1)
 }
+
+func ConcatByteSlices(byteSlices [][]byte) []byte {
+	totalLength := 0
+	for _, slice := range byteSlices {
+		totalLength += len(slice)
+	}
+	result := make([]byte, totalLength)
+	offset := 0
+	for _, slice := range byteSlices {
+		copy(result[offset:], slice)
+		offset += len(slice)
+	}
+	return result
+}

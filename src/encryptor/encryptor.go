@@ -17,55 +17,49 @@ func deriveKey(password string) []byte {
 	return hash[:]
 }
 
-func EncryptWithRandomKey(plaintext string) (string, string, error) {
+func EncryptWithRandomKey(data []byte) ([]byte, string, error) {
 	// Generate a random key
 	key := make([]byte, aes.BlockSize)
 	if _, err := rand.Read(key); err != nil {
-		return "", "", errors.New("error generating random key")
+		return []byte{}, "", errors.New("error generating random key")
 	}
 
 	// Encrypt using the generated key
-	ciphertext, err := EncryptWithPassword(plaintext, string(key))
+	ciphertextBytes, err := EncryptWithPassword(data, string(key))
 	if err != nil {
-		return "", "", err
+		return []byte{}, "", err
 	}
 
 	// Encode the key in Base64 for storage or transmission
 	encodedKey := base64.StdEncoding.EncodeToString(key)
 
-	return ciphertext, encodedKey, nil
+	return ciphertextBytes, encodedKey, nil
 }
 
 // DecryptWithRandomKey decrypts a ciphertext using AES with a randomly generated key.
-func DecryptWithRandomKey(ciphertext string, encodedKey string) (string, error) {
+func DecryptWithRandomKey(ciphertextBytes []byte, encodedKey string) ([]byte, error) {
 	// Decode the key
 	keyBytes, err := base64.StdEncoding.DecodeString(encodedKey)
 	if err != nil {
-		return "", fmt.Errorf("error decoding key: %+w ", err)
+		return []byte{}, fmt.Errorf("error decoding key: %+w ", err)
 	}
 
 	// Decrypt using the decoded key
-	return DecryptWithPassword(ciphertext, string(keyBytes))
+	return DecryptWithPassword(ciphertextBytes, string(keyBytes))
 }
 
-func DecryptWithPassword(ciphertext string, password string) (string, error) {
-	// Decode the ciphertext and IV
-	ciphertextBytes, err := base64.StdEncoding.DecodeString(ciphertext)
-	if err != nil {
-		return "", errors.New("error decoding ciphertext")
-	}
-
+func DecryptWithPassword(ciphertextBytes []byte, password string) ([]byte, error) {
 	// Derive a 32-byte key from the password
 	key := deriveKey(password)
 	aesCipher, err := aes.NewCipher(key)
 	if err != nil {
-		return "", fmt.Errorf("error creating AES cipher: %w", err)
+		return []byte{}, fmt.Errorf("error creating AES cipher: %w", err)
 	}
 
 	// Create a new GCM cipher
 	gcm, err := cipher.NewGCM(aesCipher)
 	if err != nil {
-		return "", fmt.Errorf("error creating GCM cipher: %w", err)
+		return []byte{}, fmt.Errorf("error creating GCM cipher: %w", err)
 	}
 
 	// Split the ciphertext into IV and actual ciphertext
@@ -76,24 +70,24 @@ func DecryptWithPassword(ciphertext string, password string) (string, error) {
 	dst := []byte{}
 	plaintext, err := gcm.Open(dst, iv, ciphertextBytes, nil)
 	if err != nil {
-		return "", errors.New("error decrypting ciphertext")
+		return []byte{}, errors.New("error decrypting ciphertext")
 	}
 
-	return string(plaintext), nil
+	return plaintext, nil
 }
 
-func EncryptWithPassword(plaintext string, password string) (string, error) {
+func EncryptWithPassword(data []byte, password string) ([]byte, error) {
 	// Derive a 32-byte key from the password
 	key := deriveKey(password)
 	aesCipher, err := aes.NewCipher(key)
 	if err != nil {
-		return "", fmt.Errorf("error creating AES cipher: %+w", err)
+		return []byte{}, fmt.Errorf("error creating AES cipher: %+w", err)
 	}
 
 	// Create a new GCM cipher
 	gcm, err := cipher.NewGCM(aesCipher)
 	if err != nil {
-		return "", fmt.Errorf("error creating GCM cipher: %+w", err)
+		return []byte{}, fmt.Errorf("error creating GCM cipher: %+w", err)
 	}
 
 	// Generate a random initialization vector (IV)
@@ -103,8 +97,8 @@ func EncryptWithPassword(plaintext string, password string) (string, error) {
 	}
 
 	// Encrypt the plaintext using GCM
-	ciphertext := gcm.Seal(nil, iv, []byte(plaintext), nil)
+	ciphertext := gcm.Seal(nil, iv, data, nil)
 
 	// Encode the ciphertext and IV in Base64 for storage or transmission
-	return base64.StdEncoding.EncodeToString(append(iv, ciphertext...)), nil
+	return append(iv, ciphertext...), nil
 }
