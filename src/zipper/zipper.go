@@ -3,7 +3,6 @@ package zipper
 import (
 	"archive/zip"
 	"bytes"
-	"encoding/base64"
 	"io"
 	"os"
 	"path/filepath"
@@ -16,25 +15,24 @@ func New() *Zipper {
 	return &Zipper{}
 }
 
-func (z *Zipper) ZipToString(path string) (string, error) {
+func (z *Zipper) Zip(path string) ([]byte, error) {
 	buf := &bytes.Buffer{}
 	w := zip.NewWriter(buf)
 
-	// Zip the file
+	// Zip the file(s)
 	err := z.zipFile(path, "", w)
 	if err != nil {
 		w.Close()
-		return "", err
+		return []byte{}, err
 	}
 
 	// Close the writer before encoding
 	err = w.Close()
 	if err != nil {
-		return "", err
+		return []byte{}, err
 	}
 
-	// Encode the zip file as base64
-	return base64.StdEncoding.EncodeToString(buf.Bytes()), nil
+	return buf.Bytes(), nil
 }
 
 func (z *Zipper) zipFile(path string, prefix string, w *zip.Writer) error {
@@ -72,14 +70,9 @@ func (z *Zipper) zipFile(path string, prefix string, w *zip.Writer) error {
 	return nil
 }
 
-func (z *Zipper) ExtractBase64ZipToDir(zipBase64 string, destDir string) error {
-	r, err := base64.StdEncoding.DecodeString(zipBase64)
-	if err != nil {
-		return err
-	}
-
+func (z *Zipper) Extract(zipData []byte, destDir string) error {
 	// Create a ZIP reader directly from the byte slice
-	reader, err := zip.NewReader(bytes.NewReader(r), int64(len(r)))
+	reader, err := zip.NewReader(bytes.NewReader(zipData), int64(len(zipData)))
 	if nil != err {
 		return err
 	}
