@@ -50,8 +50,18 @@ func (c *Core) Hide(dataPath string, partCount int, outputDir string, prefilledP
 	}
 	prettywriter.Writeln("[>>] Splitting zip into padded parts", prettywriter.Green, prettywriter.BlackBG)
 
+	// to tackle known cleartext attack on the zip header we are going to add a random amount of random data at the beginning. this
+	// might not be the perfect solution tho it requires an attacker to use either allow of brute force or figure some very smart
+	// frequency analysis to find it.
+	randomFrontPadding, err := utils.GenerateRandomBytes(1000, 10000)
+	if err != nil {
+		return fmt.Errorf("error generating random front padding: %w", err)
+	}
+	paddedZipData := append(randomFrontPadding, zipData...)
+	frontPaddingAmount := len(randomFrontPadding)
+
 	// Step 2: Split the zip slice into parts with padding
-	parts, padding := splitter.SplitBytesWithPadding(zipData, c.PartCount)
+	parts, backPadding := splitter.SplitBytesWithPadding(paddedZipData, c.PartCount)
 
 	// Step 3: Run encryption on all the parts, store them encrypted and add the info to masterlock
 	var partInfos []masterlock.PartInfo
@@ -84,7 +94,7 @@ func (c *Core) Hide(dataPath string, partCount int, outputDir string, prefilledP
 	prettywriter.Writeln("[**] All parts successfully encrypted and stored.", prettywriter.BlackBG, prettywriter.Green)
 	fmt.Println("")
 	// Step 4: Create Masterlock, prompt user for pwd and encrypt and store the masterlock
-	masterLockData, err := masterlock.CreateMasterLock(partInfos, padding)
+	masterLockData, err := masterlock.CreateMasterLock(partInfos, frontPaddingAmount, backPadding)
 	if err != nil {
 		return fmt.Errorf("error creating master lock file: %w", err)
 	}
@@ -190,8 +200,8 @@ func (c *Core) Unhide(partsDir, outputPath string, prefilledPassword string) err
 	// Step 3: Reconstruct zip Data
 	prettywriter.WriteInBox(40, "Handling zip", prettywriter.Black, prettywriter.Green, prettywriter.DoubleLine)
 	paddedData := utils.ConcatByteSlices(allParts)
-	//paddedData := strings.Join(allParts, "")
-	unpaddedData := paddedData[:len(paddedData)-mlock.Padding]
+	paddedDataLen := len(paddedData)
+	unpaddedData := paddedData[mlock.FrontPadding : paddedDataLen-mlock.BackPadding]
 	prettywriter.Writeln("[**] Reconstructed zip data without padding ", prettywriter.Green, prettywriter.BlackBG)
 	prettywriter.Writeln("[>>] Unpacking zip data ", prettywriter.Green, prettywriter.BlackBG)
 	zipper := zipper.New()

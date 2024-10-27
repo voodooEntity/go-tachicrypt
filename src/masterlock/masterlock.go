@@ -12,14 +12,16 @@ type PartInfo struct {
 }
 
 type MasterLock struct {
-	Parts   []PartInfo `json:"parts"`
-	Padding int        `json:"padding"`
+	Parts        []PartInfo `json:"parts"`
+	FrontPadding int        `json:"front_padding"`
+	BackPadding  int        `json:"padding"`
 }
 
-func CreateMasterLock(parts []PartInfo, padding int) ([]byte, error) {
+func CreateMasterLock(parts []PartInfo, frontPadding int, backPadding int) ([]byte, error) {
 	masterLock := MasterLock{
-		Parts:   parts,
-		Padding: padding,
+		Parts:        parts,
+		FrontPadding: frontPadding,
+		BackPadding:  backPadding,
 	}
 
 	data, err := json.Marshal(masterLock)

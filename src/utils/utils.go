@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/voodooEntity/go-tachicrypt/src/prettywriter"
 	"golang.org/x/term"
+	"math/big"
 	"os"
 	"syscall"
 )
@@ -76,4 +77,29 @@ func ConcatByteSlices(byteSlices [][]byte) []byte {
 		offset += len(slice)
 	}
 	return result
+}
+
+func GenerateRandomBytes(min, max int) ([]byte, error) {
+	// Ensure min is less than or equal to max
+	if min > max {
+		min, max = max, min
+	}
+
+	// Generate a random number between min and max (inclusive)
+	randAmount, err := rand.Int(rand.Reader, big.NewInt(int64(max-min+1)))
+	if err != nil {
+		return nil, err
+	}
+	randAmount.Add(randAmount, big.NewInt(int64(min)))
+
+	// Create a byte slice of the desired length
+	randomBytes := make([]byte, int(randAmount.Int64()))
+
+	// Read random bytes into the slice
+	_, err = rand.Read(randomBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	return randomBytes, nil
 }
