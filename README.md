@@ -113,7 +113,7 @@ At this point i want to repeat that this is an experimental project. I got no ex
 
 
 ## Changelog
-***Notice: While in alpha, minor version updates may be breaking. While i will try to reduce the amount of breaking changes, it still may happen. When breaking changes are to be expected it will be informed about in the breaking versions changelog.***
+***Notice: While in beta, minor version updates may be breaking. Even tho i will try to reduce the amount of breaking changes, it still may happen. When breaking changes are to be expected it will be informed about in the breaking versions changelog.***
 
 [Check the Changelog](./CHANGELOG.md)
 
