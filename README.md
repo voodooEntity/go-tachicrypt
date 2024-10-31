@@ -105,7 +105,7 @@ At this point i want to repeat that this is an experimental project. I got no ex
 - [x] Cli output overhaul
 - [x] Implement better error handling
 - [x] Remove base64 as transport between zip and AES
-- [ ] Reconsider the usage of zip as transport format
+- [x] Reconsider the usage of zip as transport format
 - [ ] Code cleanup
 - [ ] Enhance the padding at the end of uneven last parts to use random data
 - [ ] Enhance the strength of generated passkeys for encryption
