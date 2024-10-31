@@ -117,7 +117,7 @@ At this point i want to repeat that this is an experimental project. I got no ex
 
 [Check the Changelog](./CHANGELOG.md)
 
-Latest Release [Alpha 0.3.0](https://github.com/voodooEntity/go-tachicrypt/releases/tag/0.3.0)
+Latest Release [Beta 0.4.0](https://github.com/voodooEntity/go-tachicrypt/releases/tag/0.4.0)
 
 
 
