@@ -31,7 +31,7 @@
   &nbsp;
   <!-- UNIT-COVERAGE:START -->
 <a href="https://github.com/voodooEntity/go-tachicrypt/actions/workflows/unit-tests.yml">
-    <img alt="Unit Test Coverage" src="https://img.shields.io/badge/coverage-72%25-yellow?style=flat" />
+    <img alt="Unit Test Coverage" src="https://img.shields.io/badge/coverage-100%25-brightgreen?style=flat" />
   </a>
   <!-- UNIT-COVERAGE:END -->
   &nbsp;
