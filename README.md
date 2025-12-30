@@ -38,7 +38,7 @@ Unit test coverage: 72.6%
 <!-- UNIT-COVERAGE:END -->
 
 <!-- INTEGRATION-STATUS:START -->
-[![Integration Tests](https://img.shields.io/badge/Integration%20Tests-unknown-lightgrey?style=flat)](https://github.com/voodooEntity/go-tachicrypt/actions/workflows/integration-tests.yml)
+[![Integration Tests](https://img.shields.io/badge/Integration%20Tests-success-brightgreen?style=flat)](https://github.com/voodooEntity/go-tachicrypt/actions/workflows/integration-tests.yml)
 <!-- INTEGRATION-STATUS:END -->
 
 <!-- CI-STATUS:END -->
