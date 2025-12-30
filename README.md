@@ -24,15 +24,21 @@
 <!-- CI-STATUS:START -->
 <p align="center">
   <!-- UNIT-STATUS:START -->
-  [![Unit Tests](https://img.shields.io/badge/Unit%20Tests-unknown-lightgrey?style=flat)](https://github.com/voodooEntity/go-tachicrypt/actions/workflows/unit-tests.yml)
+  <a href="https://github.com/voodooEntity/go-tachicrypt/actions/workflows/unit-tests.yml">
+    <img alt="Unit Tests" src="https://img.shields.io/badge/Unit%20Tests-unknown-lightgrey?style=flat" />
+  </a>
   <!-- UNIT-STATUS:END -->
   &nbsp;
   <!-- UNIT-COVERAGE:START -->
-  [![Unit Test Coverage](https://img.shields.io/badge/coverage-unknown-lightgrey?style=flat)](https://github.com/voodooEntity/go-tachicrypt/actions/workflows/unit-tests.yml)
+  <a href="https://github.com/voodooEntity/go-tachicrypt/actions/workflows/unit-tests.yml">
+    <img alt="Unit Test Coverage" src="https://img.shields.io/badge/coverage-unknown-lightgrey?style=flat" />
+  </a>
   <!-- UNIT-COVERAGE:END -->
   &nbsp;
   <!-- INTEGRATION-STATUS:START -->
-[![Integration Tests](https://img.shields.io/badge/Integration%20Tests-success-brightgreen?style=flat)](https://github.com/voodooEntity/go-tachicrypt/actions/workflows/integration-tests.yml)
+  <a href="https://github.com/voodooEntity/go-tachicrypt/actions/workflows/integration-tests.yml">
+    <img alt="Integration Tests" src="https://img.shields.io/badge/Integration%20Tests-unknown-lightgrey?style=flat" />
+  </a>
   <!-- INTEGRATION-STATUS:END -->
 </p>
 <!-- CI-STATUS:END -->
