@@ -3,6 +3,11 @@ package core
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+	"strconv"
+
 	"github.com/voodooEntity/go-tachicrypt/src/encryptor"
 	"github.com/voodooEntity/go-tachicrypt/src/fileutils"
 	"github.com/voodooEntity/go-tachicrypt/src/masterlock"
@@ -10,10 +15,23 @@ import (
 	"github.com/voodooEntity/go-tachicrypt/src/splitter"
 	"github.com/voodooEntity/go-tachicrypt/src/utils"
 	"github.com/voodooEntity/go-tachicrypt/src/zipper"
-	"io/ioutil"
-	"os"
-	"path/filepath"
-	"strconv"
+)
+
+// test hooks for dependency injection in unit tests; default to real implementations
+var (
+	genRandomBytesFn          = utils.GenerateRandomBytes
+	encryptWithRandomKeyFn    = encryptor.EncryptWithRandomKey
+	generateRandomFilenameFn  = utils.GenerateRandomFilename
+	writeToFileFn             = fileutils.WriteToFile
+	createMasterLockFn        = masterlock.CreateMasterLock
+	encryptWithPasswordFn     = encryptor.EncryptWithPassword
+	obfuscateFileTimestampsFn = fileutils.ObfuscateFileTimestamps
+	readFileFn                = ioutil.ReadFile
+	decryptWithPasswordFn     = encryptor.DecryptWithPassword
+	jsonUnmarshalFn           = json.Unmarshal
+	osReadFileFn              = os.ReadFile
+	decryptWithRandomKeyFn    = encryptor.DecryptWithRandomKey
+	promptPasswordFn          = utils.PromptForPassword
 )
 
 type Core struct {
@@ -53,7 +71,7 @@ func (c *Core) Hide(dataPath string, partCount int, outputDir string, prefilledP
 	// to tackle known cleartext attack on the zip header we are going to add a random amount of random data at the beginning. this
 	// might not be the perfect solution tho it requires an attacker to use either allow of brute force or figure some very smart
 	// frequency analysis to find it.
-	randomFrontPadding, err := utils.GenerateRandomBytes(1000, 10000)
+	randomFrontPadding, err := genRandomBytesFn(1000, 10000)
 	if err != nil {
 		return fmt.Errorf("error generating random front padding: %w", err)
 	}
@@ -68,18 +86,18 @@ func (c *Core) Hide(dataPath string, partCount int, outputDir string, prefilledP
 	for i, part := range parts {
 		fmt.Print("\r")
 		prettywriter.Write("[>>] Encrypt and store parts : "+strconv.Itoa(i+1)+"/"+strconv.Itoa(len(parts)), prettywriter.Green, prettywriter.BlackBG)
-		encryptedPart, key, err := encryptor.EncryptWithRandomKey(part)
+		encryptedPart, key, err := encryptWithRandomKeyFn(part)
 		if err != nil {
 			return fmt.Errorf("error encrypting part: %w", err)
 		}
 
-		filename, err := utils.GenerateRandomFilename()
+		filename, err := generateRandomFilenameFn()
 		if err != nil {
 			return fmt.Errorf("error generating filename: %w", err)
 		}
 
 		partPath := filepath.Join(outputDir, filename)
-		err = fileutils.WriteToFile(partPath, encryptedPart)
+		err = writeToFileFn(partPath, encryptedPart)
 		if err != nil {
 			return fmt.Errorf("error writing encrypted part to file: %w", err)
 		}
@@ -94,27 +112,27 @@ func (c *Core) Hide(dataPath string, partCount int, outputDir string, prefilledP
 	prettywriter.Writeln("[**] All parts successfully encrypted and stored.", prettywriter.BlackBG, prettywriter.Green)
 	fmt.Println("")
 	// Step 4: Create Masterlock, prompt user for pwd and encrypt and store the masterlock
-	masterLockData, err := masterlock.CreateMasterLock(partInfos, frontPaddingAmount, backPadding)
+	masterLockData, err := createMasterLockFn(partInfos, frontPaddingAmount, backPadding)
 	if err != nil {
 		return fmt.Errorf("error creating master lock file: %w", err)
 	}
 
 	password := ""
 	if "" == prefilledPassword {
-		password = utils.PromptForPassword("Please enter a password to encrypt the masterlock: ")
+		password = promptPasswordFn("Please enter a password to encrypt the masterlock: ")
 	} else {
 		password = prefilledPassword
 	}
 	fmt.Println("")
 	prettywriter.WriteInBox(40, "Handle masterlock file", prettywriter.Black, prettywriter.Green, prettywriter.DoubleLine)
 	prettywriter.Writeln("[>>] Encrypting masterlock", prettywriter.BlackBG, prettywriter.Green)
-	encryptedMasterLock, err := encryptor.EncryptWithPassword(masterLockData, password)
+	encryptedMasterLock, err := encryptWithPasswordFn(masterLockData, password)
 	if err != nil {
 		return fmt.Errorf("error encrypting master lock file: %w", err)
 	}
 	masterLockPath := filepath.Join(outputDir, "masterlock")
 	prettywriter.Writeln("[>>] Writing masterlock", prettywriter.BlackBG, prettywriter.Green)
-	err = fileutils.WriteToFile(masterLockPath, encryptedMasterLock)
+	err = writeToFileFn(masterLockPath, encryptedMasterLock)
 	if err != nil {
 		return fmt.Errorf("error writing master lock file: %w", err)
 	}
@@ -123,7 +141,7 @@ func (c *Core) Hide(dataPath string, partCount int, outputDir string, prefilledP
 	prettywriter.WriteInBox(40, "Final Shenanigans", prettywriter.Black, prettywriter.Green, prettywriter.DoubleLine)
 	prettywriter.Writeln("[>>] Obfuscating timestamps ", prettywriter.BlackBG, prettywriter.Green)
 	// Step 5: Obfuscate timestamps to hide theoriginal encrypted parts order
-	err = fileutils.ObfuscateFileTimestamps(outputDir)
+	err = obfuscateFileTimestampsFn(outputDir)
 	if err != nil {
 		return fmt.Errorf("error obfuscating file timestamps: %w", err)
 	}
@@ -146,7 +164,7 @@ func (c *Core) Unhide(partsDir, outputPath string, prefilledPassword string) err
 	// Step 1: Decrypt Master Lock File
 	password := ""
 	if "" == prefilledPassword {
-		password = utils.PromptForPassword("Enter the password to decrypt the masterlock: ")
+		password = promptPasswordFn("Enter the password to decrypt the masterlock: ")
 	} else {
 		password = prefilledPassword
 	}
@@ -154,20 +172,20 @@ func (c *Core) Unhide(partsDir, outputPath string, prefilledPassword string) err
 	fmt.Println()
 	prettywriter.WriteInBox(40, "Handling masterlock", prettywriter.Black, prettywriter.Green, prettywriter.DoubleLine)
 	prettywriter.Writeln("[>>] Reading masterlock", prettywriter.BlackBG, prettywriter.Green)
-	encryptedMasterLock, err := ioutil.ReadFile(filepath.Join(partsDir, "masterlock"))
+	encryptedMasterLock, err := readFileFn(filepath.Join(partsDir, "masterlock"))
 	if err != nil {
 		return fmt.Errorf("error reading encrypted master lock file: %w", err)
 	}
 
 	prettywriter.Writeln("[>>] Decrypting masterlock", prettywriter.BlackBG, prettywriter.Green)
-	decryptedMasterLock, err := encryptor.DecryptWithPassword(encryptedMasterLock, password)
+	decryptedMasterLock, err := decryptWithPasswordFn(encryptedMasterLock, password)
 	if err != nil {
 		return fmt.Errorf("error decrypting master lock file: %w", err)
 	}
 
 	prettywriter.Writeln("[>>] Unpacking masterlock", prettywriter.BlackBG, prettywriter.Green)
 	var mlock masterlock.MasterLock
-	err = json.Unmarshal(decryptedMasterLock, &mlock)
+	err = jsonUnmarshalFn(decryptedMasterLock, &mlock)
 	if err != nil {
 		return fmt.Errorf("error unmarshaling master lock file: %w", err)
 	}
@@ -181,12 +199,12 @@ func (c *Core) Unhide(partsDir, outputPath string, prefilledPassword string) err
 		fmt.Print("\r")
 		prettywriter.Write("[>>] Decrypting parts : "+strconv.Itoa(i+1)+"/"+strconv.Itoa(len(mlock.Parts)), prettywriter.Green, prettywriter.BlackBG)
 		partPath := filepath.Join(partsDir, partInfo.Filename)
-		encryptedPart, err := os.ReadFile(partPath)
+		encryptedPart, err := osReadFileFn(partPath)
 		if err != nil {
 			return fmt.Errorf("error reading encrypted part file: %w", err)
 		}
 
-		decryptedPart, err := encryptor.DecryptWithRandomKey(encryptedPart, partInfo.Key)
+		decryptedPart, err := decryptWithRandomKeyFn(encryptedPart, partInfo.Key)
 		if err != nil {
 			return fmt.Errorf("error decrypting part: %w", err)
 		}

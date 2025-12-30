@@ -1,28 +1,35 @@
 package encryptor
 
 import (
-	"crypto/aes"
-	"crypto/cipher"
-	"crypto/rand"
-	"crypto/sha256"
-	"encoding/base64"
-	"errors"
-	"fmt"
-	"io"
+    "crypto/aes"
+    "crypto/cipher"
+    "crypto/rand"
+    "crypto/sha256"
+    "encoding/base64"
+    "errors"
+    "fmt"
+    "io"
+)
+
+// test hooks / indirection for easier unit testing of error paths
+var (
+    randReader     = rand.Reader
+    aesNewCipher   = aes.NewCipher
+    cipherNewGCM   = cipher.NewGCM
 )
 
 // deriveKey converts a password string into a 32-byte key using SHA-256
 func deriveKey(password string) []byte {
-	hash := sha256.Sum256([]byte(password))
-	return hash[:]
+    hash := sha256.Sum256([]byte(password))
+    return hash[:]
 }
 
 func EncryptWithRandomKey(data []byte) ([]byte, string, error) {
 	// Generate a random key
 	key := make([]byte, aes.BlockSize)
-	if _, err := rand.Read(key); err != nil {
-		return []byte{}, "", errors.New("error generating random key")
-	}
+ if _, err := randReader.Read(key); err != nil {
+        return []byte{}, "", errors.New("error generating random key")
+    }
 
 	// Encrypt using the generated key
 	ciphertextBytes, err := EncryptWithPassword(data, string(key))
@@ -51,16 +58,16 @@ func DecryptWithRandomKey(ciphertextBytes []byte, encodedKey string) ([]byte, er
 func DecryptWithPassword(ciphertextBytes []byte, password string) ([]byte, error) {
 	// Derive a 32-byte key from the password
 	key := deriveKey(password)
-	aesCipher, err := aes.NewCipher(key)
-	if err != nil {
-		return []byte{}, fmt.Errorf("error creating AES cipher: %w", err)
-	}
+ aesCipher, err := aesNewCipher(key)
+ if err != nil {
+     return []byte{}, fmt.Errorf("error creating AES cipher: %w", err)
+ }
 
-	// Create a new GCM cipher
-	gcm, err := cipher.NewGCM(aesCipher)
-	if err != nil {
-		return []byte{}, fmt.Errorf("error creating GCM cipher: %w", err)
-	}
+ // Create a new GCM cipher
+ gcm, err := cipherNewGCM(aesCipher)
+ if err != nil {
+     return []byte{}, fmt.Errorf("error creating GCM cipher: %w", err)
+ }
 
 	// Split the ciphertext into IV and actual ciphertext
 	iv := ciphertextBytes[:gcm.NonceSize()]
@@ -79,22 +86,22 @@ func DecryptWithPassword(ciphertextBytes []byte, password string) ([]byte, error
 func EncryptWithPassword(data []byte, password string) ([]byte, error) {
 	// Derive a 32-byte key from the password
 	key := deriveKey(password)
-	aesCipher, err := aes.NewCipher(key)
-	if err != nil {
-		return []byte{}, fmt.Errorf("error creating AES cipher: %+w", err)
-	}
+ aesCipher, err := aesNewCipher(key)
+ if err != nil {
+     return []byte{}, fmt.Errorf("error creating AES cipher: %+w", err)
+ }
 
-	// Create a new GCM cipher
-	gcm, err := cipher.NewGCM(aesCipher)
-	if err != nil {
-		return []byte{}, fmt.Errorf("error creating GCM cipher: %+w", err)
-	}
+ // Create a new GCM cipher
+ gcm, err := cipherNewGCM(aesCipher)
+ if err != nil {
+     return []byte{}, fmt.Errorf("error creating GCM cipher: %+w", err)
+ }
 
 	// Generate a random initialization vector (IV)
 	iv := make([]byte, gcm.NonceSize()) // gcm.NonceSize() typically returns 12
-	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
-		panic(err)
-	}
+ if _, err := io.ReadFull(randReader, iv); err != nil {
+        panic(err)
+    }
 
 	// Encrypt the plaintext using GCM
 	ciphertext := gcm.Seal(nil, iv, data, nil)

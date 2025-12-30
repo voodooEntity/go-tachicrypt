@@ -7,3 +7,6 @@ cmd/gui/tachicrypgui
 cmd/lab/
 ./idea
 test/cases/*
+enc.out
+coverage.out
+client.out

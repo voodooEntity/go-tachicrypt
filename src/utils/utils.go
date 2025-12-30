@@ -1,13 +1,20 @@
 package utils
 
 import (
-	"crypto/rand"
-	"fmt"
-	"github.com/voodooEntity/go-tachicrypt/src/prettywriter"
-	"golang.org/x/term"
-	"math/big"
-	"os"
-	"syscall"
+    crand "crypto/rand"
+    "fmt"
+    "github.com/voodooEntity/go-tachicrypt/src/prettywriter"
+    "golang.org/x/term"
+    "math/big"
+    "os"
+    "syscall"
+)
+
+// test hooks for unit testing; default to real implementations
+var (
+    randReadFn      = crand.Read
+    randIntFn       = crand.Int
+    readPasswordFn  = term.ReadPassword
 )
 
 var TachiHeading = `
@@ -22,21 +29,21 @@ var TachiHeading = `
 `
 
 func GenerateRandomFilename() (string, error) {
-	filename := make([]byte, 16) // Adjust length as needed
-	if _, err := rand.Read(filename); err != nil {
-		return "", err
-	}
-	return fmt.Sprintf("%x", filename), nil
+    filename := make([]byte, 16) // Adjust length as needed
+    if _, err := randReadFn(filename); err != nil {
+        return "", err
+    }
+    return fmt.Sprintf("%x", filename), nil
 }
 
 func PromptForPassword(prompt string) string {
-	prettywriter.WriteInBox(40, prompt, prettywriter.BlackBG, prettywriter.Green, prettywriter.DoubleLine)
-	password, err := term.ReadPassword(int(syscall.Stdin))
-	if err != nil {
-		prettywriter.Writeln(fmt.Sprintf("\nError reading password: %+v", err), prettywriter.Red, prettywriter.BlackBG)
-		fmt.Sprintf("\nError reading password: %+v", err)
-		return PromptForPassword(prompt)
-	}
+    prettywriter.WriteInBox(40, prompt, prettywriter.BlackBG, prettywriter.Green, prettywriter.DoubleLine)
+    password, err := readPasswordFn(int(syscall.Stdin))
+    if err != nil {
+        prettywriter.Writeln(fmt.Sprintf("\nError reading password: %+v", err), prettywriter.Red, prettywriter.BlackBG)
+        fmt.Sprintf("\nError reading password: %+v", err)
+        return PromptForPassword(prompt)
+    }
 	if string(password) == "" {
 		prettywriter.Writeln("Error: Invalid empty password.", prettywriter.Red, prettywriter.BlackBG)
 		return PromptForPassword(prompt)
@@ -86,20 +93,20 @@ func GenerateRandomBytes(min, max int) ([]byte, error) {
 	}
 
 	// Generate a random number between min and max (inclusive)
-	randAmount, err := rand.Int(rand.Reader, big.NewInt(int64(max-min+1)))
-	if err != nil {
-		return nil, err
-	}
-	randAmount.Add(randAmount, big.NewInt(int64(min)))
+ randAmount, err := randIntFn(crand.Reader, big.NewInt(int64(max-min+1)))
+ if err != nil {
+     return nil, err
+ }
+ randAmount.Add(randAmount, big.NewInt(int64(min)))
 
 	// Create a byte slice of the desired length
 	randomBytes := make([]byte, int(randAmount.Int64()))
 
 	// Read random bytes into the slice
-	_, err = rand.Read(randomBytes)
-	if err != nil {
-		return nil, err
-	}
+ _, err = randReadFn(randomBytes)
+ if err != nil {
+     return nil, err
+ }
 
 	return randomBytes, nil
 }
