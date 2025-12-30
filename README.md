@@ -34,7 +34,7 @@
 </p>
 
 <!-- UNIT-COVERAGE:START -->
-Unit test coverage: N/A
+Unit test coverage: 72.6%
 <!-- UNIT-COVERAGE:END -->
 
 <!-- CI-STATUS:END -->
