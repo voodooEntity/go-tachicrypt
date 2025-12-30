@@ -49,12 +49,27 @@ jobs:
       - name: Update README with coverage
         if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
         run: |
-          percent="${{ steps.coverage.outputs.percent }}"
+          percent="${{ steps.coverage.outputs.percent }}"   # e.g. 78.3%
+          # strip % and decimals for badge
+          pnum="${percent%%%}"
+          pint="${pnum%.*}"
+          # choose color
+          color="red"
+          if [ "$pint" -ge 90 ]; then color="brightgreen"; 
+          elif [ "$pint" -ge 75 ]; then color="green"; 
+          elif [ "$pint" -ge 60 ]; then color="yellow"; 
+          elif [ "$pint" -ge 40 ]; then color="orange"; fi
+
+          badge_url="https://img.shields.io/badge/coverage-${pint}%25-${color}?style=flat"
+          wf_link="https://github.com/${GITHUB_REPOSITORY}/actions/workflows/unit-tests.yml"
+          # Build a single-line markdown badge
+          line="[![Unit Test Coverage](${badge_url})](${wf_link})"
+
           tmp_file=$(mktemp)
-          awk -v p="$percent" '
-            BEGIN{start=0;}
-            /<!-- UNIT-COVERAGE:START -->/{print; print "Unit test coverage: " p; start=1; next}
-            /<!-- UNIT-COVERAGE:END -->/{start=0}
+          awk -v repl="$line" '
+            BEGIN{start=0}
+            /<!-- UNIT-COVERAGE:START -->/{print; print repl; start=1; next}
+            /<!-- UNIT-COVERAGE:END -->/{start=0; print; next}
             { if(!start) print }
           ' README.md > "$tmp_file"
           if ! diff -q "$tmp_file" README.md >/dev/null 2>&1; then
@@ -62,7 +77,7 @@ jobs:
             git config user.name "github-actions"
             git config user.email "github-actions@github.com"
             git add README.md
-            git commit -m "chore(ci): update unit test coverage badge to $percent"
+            git commit -m "chore(ci): update unit test coverage badge to ${percent}"
             git push
           else
             rm -f "$tmp_file"

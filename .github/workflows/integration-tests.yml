@@ -5,6 +5,9 @@ on:
     branches: [ main, master ]
   pull_request:
 
+permissions:
+  contents: write
+
 jobs:
   integration:
     runs-on: ubuntu-latest
@@ -17,6 +20,52 @@ jobs:
         with:
           go-version: '>=1.19'
 
-      - name: Run integration test script
+      - name: Run integration test script (capture result)
+        id: runit
         run: |
-          bash test/test.sh
+          if bash test/test.sh; then
+            echo "result=success" >> $GITHUB_OUTPUT
+          else
+            echo "result=failure" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update README with integration test status badge
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        run: |
+          result="${{ steps.runit.outputs.result }}"
+          color="lightgrey"
+          label="Integration%20Tests"
+          if [ "$result" = "success" ]; then
+            color="brightgreen"
+            text="success"
+          else
+            color="red"
+            text="failed"
+          fi
+          badge_url="https://img.shields.io/badge/${label}-${text}-${color}?style=flat"
+          wf_link="https://github.com/${GITHUB_REPOSITORY}/actions/workflows/integration-tests.yml"
+          line="[![Integration Tests](${badge_url})](${wf_link})"
+
+          tmp_file=$(mktemp)
+          awk -v repl="$line" '
+            BEGIN{start=0}
+            /<!-- INTEGRATION-STATUS:START -->/{print; print repl; start=1; next}
+            /<!-- INTEGRATION-STATUS:END -->/{start=0; print; next}
+            { if(!start) print }
+          ' README.md > "$tmp_file"
+          if ! diff -q "$tmp_file" README.md >/dev/null 2>&1; then
+            mv "$tmp_file" README.md
+            git config user.name "github-actions"
+            git config user.email "github-actions@github.com"
+            git add README.md
+            git commit -m "chore(ci): update integration test status badge to ${result}"
+            git push
+          else
+            rm -f "$tmp_file"
+          fi
+
+      - name: Fail job if tests failed
+        if: steps.runit.outputs.result == 'failure'
+        run: |
+          echo "Integration tests failed"
+          exit 1
