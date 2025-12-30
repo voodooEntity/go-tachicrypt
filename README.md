@@ -32,7 +32,7 @@
   <!-- UNIT-COVERAGE:END -->
   &nbsp;
   <!-- INTEGRATION-STATUS:START -->
-  [![Integration Tests](https://img.shields.io/badge/Integration%20Tests-unknown-lightgrey?style=flat)](https://github.com/voodooEntity/go-tachicrypt/actions/workflows/integration-tests.yml)
+[![Integration Tests](https://img.shields.io/badge/Integration%20Tests-success-brightgreen?style=flat)](https://github.com/voodooEntity/go-tachicrypt/actions/workflows/integration-tests.yml)
   <!-- INTEGRATION-STATUS:END -->
 </p>
 <!-- CI-STATUS:END -->
