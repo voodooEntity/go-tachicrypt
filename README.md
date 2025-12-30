@@ -24,14 +24,14 @@
 <!-- CI-STATUS:START -->
 <p align="center">
   <!-- UNIT-STATUS:START -->
-  <a href="https://github.com/voodooEntity/go-tachicrypt/actions/workflows/unit-tests.yml">
-    <img alt="Unit Tests" src="https://img.shields.io/badge/Unit%20Tests-unknown-lightgrey?style=flat" />
+<a href="https://github.com/voodooEntity/go-tachicrypt/actions/workflows/unit-tests.yml">
+    <img alt="Unit Tests" src="https://img.shields.io/badge/Unit%20Tests-success-brightgreen?style=flat" />
   </a>
   <!-- UNIT-STATUS:END -->
   &nbsp;
   <!-- UNIT-COVERAGE:START -->
-  <a href="https://github.com/voodooEntity/go-tachicrypt/actions/workflows/unit-tests.yml">
-    <img alt="Unit Test Coverage" src="https://img.shields.io/badge/coverage-unknown-lightgrey?style=flat" />
+<a href="https://github.com/voodooEntity/go-tachicrypt/actions/workflows/unit-tests.yml">
+    <img alt="Unit Test Coverage" src="https://img.shields.io/badge/coverage-72%25-yellow?style=flat" />
   </a>
   <!-- UNIT-COVERAGE:END -->
   &nbsp;
