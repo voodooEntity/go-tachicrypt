@@ -36,8 +36,8 @@
   <!-- UNIT-COVERAGE:END -->
   &nbsp;
   <!-- INTEGRATION-STATUS:START -->
-  <a href="https://github.com/voodooEntity/go-tachicrypt/actions/workflows/integration-tests.yml">
-    <img alt="Integration Tests" src="https://img.shields.io/badge/Integration%20Tests-unknown-lightgrey?style=flat" />
+<a href="https://github.com/voodooEntity/go-tachicrypt/actions/workflows/integration-tests.yml">
+    <img alt="Integration Tests" src="https://img.shields.io/badge/Integration%20Tests-success-brightgreen?style=flat" />
   </a>
   <!-- INTEGRATION-STATUS:END -->
 </p>
