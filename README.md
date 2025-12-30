@@ -25,17 +25,21 @@
 
 <p align="center">
   <a href="https://github.com/voodooEntity/go-tachicrypt/actions/workflows/unit-tests.yml">
-    <img alt="Unit Tests" src="https://github.com/voodooEntity/go-tachicrypt/actions/workflows/unit-tests.yml/badge.svg" />
+    <img alt="Unit Tests" src="https://img.shields.io/github/actions/workflow/status/voodooEntity/go-tachicrypt/unit-tests.yml?label=Unit%20Tests&style=flat" />
   </a>
   &nbsp;
   <a href="https://github.com/voodooEntity/go-tachicrypt/actions/workflows/integration-tests.yml">
-    <img alt="Integration Tests" src="https://github.com/voodooEntity/go-tachicrypt/actions/workflows/integration-tests.yml/badge.svg" />
+    <img alt="Integration Tests" src="https://img.shields.io/github/actions/workflow/status/voodooEntity/go-tachicrypt/integration-tests.yml?label=Integration%20Tests&style=flat" />
   </a>
 </p>
 
 <!-- UNIT-COVERAGE:START -->
 Unit test coverage: 72.6%
 <!-- UNIT-COVERAGE:END -->
+
+<!-- INTEGRATION-STATUS:START -->
+[![Integration Tests](https://img.shields.io/badge/Integration%20Tests-unknown-lightgrey?style=flat)](https://github.com/voodooEntity/go-tachicrypt/actions/workflows/integration-tests.yml)
+<!-- INTEGRATION-STATUS:END -->
 
 <!-- CI-STATUS:END -->
 
