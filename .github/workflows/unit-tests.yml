@@ -65,7 +65,7 @@ jobs:
           else
             status_color="red"; status_text="failed"
           fi
-          status_badge="[![Unit Tests](https://img.shields.io/badge/Unit%20Tests-${status_text}-${status_color}?style=flat)](${wf_link})"
+          status_badge="<a href=\"${wf_link}\">\n    <img alt=\"Unit Tests\" src=\"https://img.shields.io/badge/Unit%20Tests-${status_text}-${status_color}?style=flat\" />\n  </a>"
 
           tmp_status=$(mktemp)
           awk -v repl="$status_badge" '
@@ -92,7 +92,7 @@ jobs:
             elif [ "$pint" -ge 75 ]; then color="green"; 
             elif [ "$pint" -ge 60 ]; then color="yellow"; 
             elif [ "$pint" -ge 40 ]; then color="orange"; fi
-            cov_badge="[![Unit Test Coverage](https://img.shields.io/badge/coverage-${pint}%25-${color}?style=flat)](${wf_link})"
+            cov_badge="<a href=\"${wf_link}\">\n    <img alt=\"Unit Test Coverage\" src=\"https://img.shields.io/badge/coverage-${pint}%25-${color}?style=flat\" />\n  </a>"
 
             tmp_cov=$(mktemp)
             awk -v repl="$cov_badge" '
@@ -116,21 +116,6 @@ jobs:
             git commit -m "chore(ci): update unit test badges (${result})"
             git push
           fi
-
-          tmp_file=$(mktemp)
-          awk -v repl="$line" '
-            BEGIN{start=0}
-            /<!-- UNIT-COVERAGE:START -->/{print; print repl; start=1; next}
-            /<!-- UNIT-COVERAGE:END -->/{start=0; print; next}
-            { if(!start) print }
-          ' README.md > "$tmp_file"
-          if ! diff -q "$tmp_file" README.md >/dev/null 2>&1; then
-            mv "$tmp_file" README.md
-            git config user.name "github-actions"
-            git config user.email "github-actions@github.com"
-            git add README.md
-            git commit -m "chore(ci): update unit test coverage badge to ${percent}"
-            git push
           
       - name: Fail job if tests failed
         if: steps.runtests.outputs.result == 'failure'

@@ -44,7 +44,7 @@ jobs:
           fi
           badge_url="https://img.shields.io/badge/${label}-${text}-${color}?style=flat"
           wf_link="https://github.com/${GITHUB_REPOSITORY}/actions/workflows/integration-tests.yml"
-          line="[![Integration Tests](${badge_url})](${wf_link})"
+          line="<a href=\"${wf_link}\">\n    <img alt=\"Integration Tests\" src=\"${badge_url}\" />\n  </a>"
 
           tmp_file=$(mktemp)
           awk -v repl="$line" '
