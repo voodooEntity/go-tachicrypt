@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -59,7 +61,15 @@ jobs:
             git config user.email "github-actions@github.com"
             git add README.md
             git commit -m "chore(ci): update integration test status badge to ${result}"
-            git push
+            # Avoid non-fast-forward by rebasing first
+            BRANCH="${GITHUB_REF##*/}"
+            git fetch origin "$BRANCH"
+            git checkout -B "$BRANCH"
+            git pull --rebase origin "$BRANCH" || true
+            if ! git push origin "$BRANCH"; then
+              git pull --rebase origin "$BRANCH" || true
+              git push origin "$BRANCH"
+            fi
           else
             rm -f "$tmp_file"
           fi

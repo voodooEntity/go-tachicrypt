@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -114,7 +116,17 @@ jobs:
             git config user.email "github-actions@github.com"
             git add README.md
             git commit -m "chore(ci): update unit test badges (${result})"
-            git push
+            # Avoid non-fast-forward errors by rebasing against the remote branch first
+            BRANCH="${GITHUB_REF##*/}"
+            git fetch origin "$BRANCH"
+            # In CI, HEAD can be detached; ensure we are on the branch ref for rebase/push
+            git checkout -B "$BRANCH"
+            git pull --rebase origin "$BRANCH" || true
+            # Try to push; if it races, try once more after another rebase
+            if ! git push origin "$BRANCH"; then
+              git pull --rebase origin "$BRANCH" || true
+              git push origin "$BRANCH"
+            fi
           fi
           
       - name: Fail job if tests failed
