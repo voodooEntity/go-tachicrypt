@@ -118,3 +118,31 @@ func TestZipAndExtract_DirectoryTree(t *testing.T) {
         }
     }
 }
+
+func TestZipAndExtract_EmptyDirectory(t *testing.T) {
+    tmp := t.TempDir()
+    empty := filepath.Join(tmp, "emptydir")
+    if err := os.MkdirAll(empty, 0o755); err != nil {
+        t.Fatalf("mkdir: %v", err)
+    }
+    z := New()
+    zipBytes, err := z.Zip(empty)
+    if err != nil {
+        t.Fatalf("zip empty dir error: %v", err)
+    }
+    dest := filepath.Join(tmp, "out")
+    if err := z.Extract(zipBytes, dest); err != nil {
+        t.Fatalf("extract empty dir error: %v", err)
+    }
+    // Current implementation doesn't create entries for empty dirs when zipping;
+    // just assert that no files were created and extraction succeeded.
+    count := 0
+    _ = filepath.Walk(dest, func(path string, info os.FileInfo, err error) error {
+        if err != nil { return err }
+        if !info.IsDir() { count++ }
+        return nil
+    })
+    if count != 0 {
+        t.Fatalf("expected no files extracted from empty dir, got %d", count)
+    }
+}

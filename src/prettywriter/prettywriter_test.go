@@ -128,3 +128,25 @@ func TestWriteInBox_PrintsBordersAndMessage(t *testing.T) {
         t.Fatalf("box output should contain message: %q", out)
     }
 }
+
+func TestWritefAndWritefln(t *testing.T) {
+    out1 := captureOutput(t, func() {
+        Writef("value=%d", Yellow, BlackBG, 42)
+    })
+    if !strings.Contains(out1, "value=42") {
+        t.Fatalf("Writef missing formatted content: %q", out1)
+    }
+    if strings.Contains(out1, "\n") {
+        t.Fatalf("Writef should not include newline")
+    }
+
+    out2 := captureOutput(t, func() {
+        Writefln("msg-%s", Cyan, BlackBG, "x")
+    })
+    if !strings.Contains(out2, "msg-x") {
+        t.Fatalf("Writefln missing formatted content: %q", out2)
+    }
+    if !strings.HasSuffix(out2, "\n") {
+        t.Fatalf("Writefln should end with newline")
+    }
+}

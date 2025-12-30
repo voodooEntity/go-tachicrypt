@@ -6,6 +6,7 @@ import (
     "os"
     "strings"
     "testing"
+    "flag"
 )
 
 // captureStdout captures stdout output while fn runs and returns the printed string.
@@ -66,5 +67,16 @@ func TestPrintUsage_ContainsCoreSections(t *testing.T) {
         if !strings.Contains(cleaned, s) {
             t.Fatalf("usage output missing %q. Output: %q", s, cleaned)
         }
+    }
+}
+
+func TestMain_HelpFlagPath(t *testing.T) {
+    out := captureStdout(t, func() {
+        flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
+        os.Args = []string{"tachicrypt", "--help"}
+        main()
+    })
+    if !strings.Contains(out, "Usage: tachicrypt") {
+        t.Fatalf("expected usage output when --help is provided; got: %q", out)
     }
 }
