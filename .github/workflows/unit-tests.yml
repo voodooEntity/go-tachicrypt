@@ -1,0 +1,69 @@
+name: Unit Tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '>=1.19'
+
+      - name: Cache Go build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Run unit tests with coverage
+        run: |
+          go test ./... -covermode=atomic -coverprofile=coverage.out -v
+
+      - name: Compute coverage percentage
+        id: coverage
+        run: |
+          total=$(go tool cover -func=coverage.out | grep -E 'total:\s*\(statements\)' | awk '{print $3}')
+          echo "percent=$total" >> $GITHUB_OUTPUT
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage.out
+          path: coverage.out
+
+      - name: Update README with coverage
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        run: |
+          percent="${{ steps.coverage.outputs.percent }}"
+          tmp_file=$(mktemp)
+          awk -v p="$percent" '
+            BEGIN{start=0;}
+            /<!-- UNIT-COVERAGE:START -->/{print; print "Unit test coverage: " p; start=1; next}
+            /<!-- UNIT-COVERAGE:END -->/{start=0}
+            { if(!start) print }
+          ' README.md > "$tmp_file"
+          if ! diff -q "$tmp_file" README.md >/dev/null 2>&1; then
+            mv "$tmp_file" README.md
+            git config user.name "github-actions"
+            git config user.email "github-actions@github.com"
+            git add README.md
+            git commit -m "chore(ci): update unit test coverage badge to $percent"
+            git push
+          else
+            rm -f "$tmp_file"
+          fi

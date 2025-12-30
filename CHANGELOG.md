@@ -1,4 +1,8 @@
 # Changelog
+## Beta Release 0.5.0 `30.12.2025`
+* Adding unit test coverage
+* Adding integration test coverage
+
 ## Beta-Release 0.4.0 `31.10.2024`
 * **Important**: This is a breaking release. Due to the adding of a padding in front of the first part to mitigate possible cleartext attacks on the zip header, the format is incompatible to encrypted files created with previous versions.
 * Adding a random length padding in front of the zip data to mitigate the issue of possible known cleartext attack on said zip header ( https://github.com/voodooEntity/go-tachicrypt/issues/5 )

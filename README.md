@@ -21,6 +21,24 @@
 
 <i><b>Important</b> right now this is an experimental project and the safety and stability isn't guaranteed!</i>
 
+<!-- CI-STATUS:START -->
+
+<p align="center">
+  <a href="https://github.com/voodooEntity/go-tachicrypt/actions/workflows/unit-tests.yml">
+    <img alt="Unit Tests" src="https://github.com/voodooEntity/go-tachicrypt/actions/workflows/unit-tests.yml/badge.svg" />
+  </a>
+  &nbsp;
+  <a href="https://github.com/voodooEntity/go-tachicrypt/actions/workflows/integration-tests.yml">
+    <img alt="Integration Tests" src="https://github.com/voodooEntity/go-tachicrypt/actions/workflows/integration-tests.yml/badge.svg" />
+  </a>
+</p>
+
+<!-- UNIT-COVERAGE:START -->
+Unit test coverage: N/A
+<!-- UNIT-COVERAGE:END -->
+
+<!-- CI-STATUS:END -->
+
 ## Key Features
 
 - Clean and straightforward CLI interface.
@@ -106,6 +124,7 @@ At this point i want to repeat that this is an experimental project. I got no ex
 - [x] Implement better error handling
 - [x] Remove base64 as transport between zip and AES
 - [x] Reconsider the usage of zip as transport format
+- [x] Add full test coverage (unit & integration)
 - [ ] Code cleanup
 - [ ] Enhance the padding at the end of uneven last parts to use random data
 - [ ] Enhance the strength of generated passkeys for encryption
@@ -117,7 +136,7 @@ At this point i want to repeat that this is an experimental project. I got no ex
 
 [Check the Changelog](./CHANGELOG.md)
 
-Latest Release [Beta 0.4.0](https://github.com/voodooEntity/go-tachicrypt/releases/tag/0.4.0)
+Latest Release [Beta 0.5.0](https://github.com/voodooEntity/go-tachicrypt/releases/tag/0.5.0)
 
 
 
