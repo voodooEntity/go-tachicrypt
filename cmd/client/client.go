@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
+
 	"github.com/voodooEntity/go-tachicrypt/src/core"
 	"github.com/voodooEntity/go-tachicrypt/src/prettywriter"
 	"github.com/voodooEntity/go-tachicrypt/src/utils"
@@ -47,7 +49,8 @@ func main() {
 
 	if *hide {
 		c := core.New()
-		err := c.Hide(*dataPath, *partCount, *outputDir, "")
+		prefilledPwd := os.Getenv("TACHICRYPT_PASSWORD")
+		err := c.Hide(*dataPath, *partCount, *outputDir, prefilledPwd)
 		if err != nil {
 			utils.ExitError(fmt.Sprintf("Error hiding data: %v \n", err))
 			return
@@ -57,7 +60,8 @@ func main() {
 
 	if *unhide {
 		c := core.New()
-		err := c.Unhide(*dataPath, *outputDir, "")
+		prefilledPwd := os.Getenv("TACHICRYPT_PASSWORD")
+		err := c.Unhide(*dataPath, *outputDir, prefilledPwd)
 		if err != nil {
 			utils.ExitError(fmt.Sprintf("Error unhiding data: %v \n", err))
 			return

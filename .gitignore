@@ -6,3 +6,4 @@ cmd/client/tachicryptgui
 cmd/gui/tachicrypgui
 cmd/lab/
 ./idea
+test/cases/*
