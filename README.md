@@ -34,7 +34,7 @@
 </p>
 
 <!-- UNIT-COVERAGE:START -->
-[![Unit Test Coverage](https://img.shields.io/badge/coverage-unknown-lightgrey?style=flat)](https://github.com/voodooEntity/go-tachicrypt/actions/workflows/unit-tests.yml)
+Unit test coverage: 72.6%
 <!-- UNIT-COVERAGE:END -->
 
 <!-- INTEGRATION-STATUS:START -->
